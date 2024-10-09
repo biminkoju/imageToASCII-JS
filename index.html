@@ -7,25 +7,28 @@
 		<link rel="stylesheet" href="index.css" />
 	</head>
 	<body>
+		<h1>ASCII</h1>
 		<button id="toggleButton">Toggle Dark Mode</button>
-
 		<br />
-		<h2>Upload Image</h2>
+		<br />
+		<h3>Upload Image</h3>
 		<form id="imageUploadForm" enctype="multipart/form-data">
 			<input type="file" id="imageInput" accept="image/*" />
-			<br />
+			<br /><br />
 			<button type="button" onclick="uploadImage()">Upload Image</button>
 		</form>
 		<br />
 		<div>
-			<h2>Modify Image</h2>
+			<h3>Modify Image</h3>
 			<canvas id="imageCanvas" width="250" height="250"></canvas>
 			<br />
+			<br />
+			<h3>effects</h3>
 			<button onclick="applyGrayscale()">Grayscale</button>
 			<button onclick="applyBlur()">Blur</button><br />
 			<button onclick="applyPixelate()">Pixelate</button>
 			<div class="slider-container">
-				<span id="pixelationLevel">1</span><br />
+				pixelationLevel: <span id="pixelationLevel">1</span><br />
 				<input
 					type="range"
 					min="1"
@@ -35,21 +38,43 @@
 					id="pixelateRange"
 				/>
 			</div>
-			<button onclick="resetImage()">Reset</button>
+
+			<br />
+			<br />
+			<h3>Image resize</h3>
 			<button onclick="resize()">resize</button>
 			<button onclick="smallImage()">smallImage</button>
-			<br />
+			<button onclick="resetImage()">Reset</button>
+			<br /><br />
+			<h3>ASCII conversion</h3>
 			<input type="checkbox" id="invert" />invert <br />
+			(inverts the charactermap so lighter portion of image get's assigned
+			the darker character) <br /><br />
 			<button onclick="toASCII1()">ASCII 1</button>
 			<button onclick="toASCII2()">ASCII 2</button>
+			<br /><br />
+			size down level: <span id="sizeDownLevel">1</span><br />
+			<input
+				type="range"
+				min="1"
+				max="20"
+				value="1"
+				class="slider"
+				id="sizeDownRange"
+			/>
+			<br />
 			<button onclick="toASCII3()">ASCII 3</button>
 			<button onclick="toASCII3()">ASCII 4</button>
 		</div>
 		<br />
+		<h3>converted ascii</h3>
+		<br />
+		<br />
 		<div>
 			<div id="textBox"></div>
 		</div>
-		<br />
+		<br /><br />
+		<h3>Download</h3>
 		<div>
 			<button onclick="downloadImage()">Download Image</button>
 			<button onclick="downloadASCII()">Download ASCII</button>

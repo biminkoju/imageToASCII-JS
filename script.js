@@ -14,10 +14,33 @@ toggleButton.addEventListener('click', () => {
 	document.body.classList.toggle('dark-mode');
 });
 
+var sizeDownLevel = document.getElementById('sizeDownLevel');
+var sizeDownslider = document.getElementById('sizeDownRange');
+
+sizeDownslider.oninput = function () {
+	sizeDownLevel.innerHTML = this.value;
+	applyPixelate();
+};
+/**
+ * Normalize a value from one range to another range.
+ *
+ * @param {number} x - value to normalize
+ * @param {number} min1 - minimum value of the original range
+ * @param {number} max1 - maximum value of the original range
+ * @param {number} min2 - minimum value of the target range
+ * @param {number} max2 - maximum value of the target range
+ * @return {number} normalized value
+ */
 function normalize(x, min1, max1, min2, max2) {
 	return ((x - min1) / (max1 - min1)) * (max2 - min2) + min2;
 }
 
+/**
+ * Reset the image back to the original and then upload a new image.
+ * If a file is selected, it is read and the original image is stored.
+ * The original image is then resized and drawn onto the canvas.
+ * If no file is selected, an alert is shown.
+ */
 function uploadImage() {
 	resetImage();
 	const input = document.getElementById('imageInput');
@@ -45,29 +68,6 @@ function uploadImage() {
 	}
 }
 
-function resize(newWidth = img.width, newHeight = img.height) {
-	if (originalImage) {
-		// Create a temporary canvas for resizing
-		const tempCanvas = document.createElement('canvas');
-		const tempCtx = tempCanvas.getContext('2d');
-
-		// Set the temporary canvas size to the new dimensions
-		tempCanvas.width = newWidth;
-		tempCanvas.height = newHeight;
-
-		// Draw the original image onto the temporary canvas at the new size
-		tempCtx.drawImage(originalImage, 0, 0, newWidth, newHeight);
-
-		// Clear the main canvas before drawing the resized image
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		// Set image smoothing options
-		ctx.imageSmoothingEnabled = true; // Enable for smooth resizing
-		canvas.height = newHeight;
-		canvas.width = newWidth;
-		ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight); // Draw the resized image on the main canvas
-	}
-}
-
 // Apply grayscale filter
 function applyGrayscale() {
 	ctx.filter = 'grayscale(100%)';
@@ -79,16 +79,20 @@ function applyBlur() {
 	ctx.filter = 'blur(5px)';
 	ctx.drawImage(canvas, 0, 0);
 }
-var output = document.getElementById('pixelationLevel');
-var slider = document.getElementById('pixelateRange');
-slider.oninput = function () {
-	output.innerHTML = this.value;
+
+var pixelationLevel = document.getElementById('pixelationLevel');
+var pixelationSlider = document.getElementById('pixelateRange');
+// Triggered when the user changes the value of the pixelation slider.
+// Updates the value displayed next to the slider and applies the pixelation effect.
+pixelationSlider.oninput = function () {
+	pixelationLevel.innerHTML = this.value;
 	applyPixelate();
 };
+
 // Apply pixelation effect
 function applyPixelate() {
 	if (originalImage) {
-		const pixelationLevel = slider.value; // Adjust this value for more or less pixelation
+		const pixelationLevel = pixelationSlider.value; // Adjust this value for more or less pixelation
 
 		// Create a temporary canvas for pixelation
 		const tempCanvas = document.createElement('canvas');
@@ -114,16 +118,44 @@ function applyPixelate() {
 	}
 }
 
-// Reset the image back to the original
-function resetImage() {
+// sizing controls
+
+/**
+ * Resize the original image to the specified dimensions and draw it on the canvas.
+ *
+ * This function uses a temporary canvas to resize the original image.
+ * It then clears the main canvas, sets the image smoothing option to true,
+ * and draws the resized image on the main canvas.
+ *
+ * @param {number} newWidth - the new width to resize to
+ * @param {number} newHeight - the new height to resize to
+ */
+function resize(newWidth = img.width, newHeight = img.height) {
 	if (originalImage) {
-		canvas.width = img.width / 4;
-		canvas.height = img.height / 4;
+		// Create a temporary canvas for resizing
+		const tempCanvas = document.createElement('canvas');
+		const tempCtx = tempCanvas.getContext('2d');
+
+		// Set the temporary canvas size to the new dimensions
+		tempCanvas.width = newWidth;
+		tempCanvas.height = newHeight;
+
+		// Draw the original image onto the temporary canvas at the new size
+		tempCtx.drawImage(originalImage, 0, 0, newWidth, newHeight);
+
+		// Clear the main canvas before drawing the resized image
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
-		ctx.filter = 'none'; // Remove any filters
+		// Set image smoothing options
+		ctx.imageSmoothingEnabled = true; // Enable for smooth resizing
+		canvas.height = newHeight;
+		canvas.width = newWidth;
+		ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight); // Draw the resized image on the main canvas
 	}
 }
+/**
+ * Resets the image to its original canvas size (250x250), clears the canvas and redraws the original image.
+ * If the original image does not exist, this function does nothing.
+ */
 function smallImage() {
 	if (originalImage) {
 		canvas.width = 250;
@@ -134,6 +166,37 @@ function smallImage() {
 	}
 }
 
+// Reset the image back to the original
+function resetImage() {
+	if (originalImage) {
+		canvas.width = img.width / 4;
+		canvas.height = img.height / 4;
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+		ctx.filter = 'none'; // Remove any filters
+	}
+}
+
+//ascii converters
+
+/**
+ * Takes the current image on the canvas and converts it to an ASCII art
+ * representation, which is then displayed in the text box.
+ *
+ * The ASCII representation is generated by iterating through each pixel of the
+ * image, calculating the average color value of the pixel, and using that value
+ * to index into the `density1` string. The corresponding character is then added
+ * to a string representing the current row of the image.
+ *
+ * The `density1` string is a string of characters where the first character
+ * represents the darkest color and the last character represents the lightest
+ * color. The characters in between represent the various shades of gray.
+ *
+ * If the `invert` checkbox is checked, the string is reversed so that the
+ * lightest color is first and the darkest color is last.
+ *
+ * When the row is complete, it is added to the text box as a `div` element.
+ */
 function toASCII1() {
 	let textBox = document.getElementById('textBox');
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -169,6 +232,24 @@ function toASCII1() {
 		textBox.appendChild(rowElement);
 	}
 }
+/**
+ * Takes the current image on the canvas and converts it to an ASCII art
+ * representation, which is then displayed in the text box.
+ *
+ * The ASCII representation is generated by iterating through each pixel of the
+ * image, calculating the average color value of the pixel, and using that value
+ * to index into the `density2` string. The corresponding character is then added
+ * to a string representing the current row of the image.
+ *
+ * The `density2` string is a string of characters where the first character
+ * represents the darkest color and the last character represents the lightest
+ * color. The characters in between represent the various shades of gray.
+ *
+ * If the `invert` checkbox is checked, the string is reversed so that the
+ * lightest color is first and the darkest color is last.
+ *
+ * When the row is complete, it is added to the text box as a `div` element.
+ */
 function toASCII2() {
 	let textBox = document.getElementById('textBox');
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -209,7 +290,7 @@ function toASCII3() {
 	let textBox = document.getElementById('textBox');
 	textBox.innerHTML = '';
 	if (originalImage) {
-		const pixelationLevel = 8; // Adjust this value for more or less pixelation
+		const pixelationLevel = sizeDownslider.value; // Adjust this value for more or less pixelation
 
 		// Create a temporary canvas for pixelation
 		const tempCanvas = document.createElement('canvas');
@@ -271,7 +352,7 @@ function toASCII4() {
 	let textBox = document.getElementById('textBox');
 	textBox.innerHTML = '';
 	if (originalImage) {
-		const pixelationLevel = 8; // Adjust this value for more or less pixelation
+		const pixelationLevel = sizeDownslider.value; // Adjust this value for more or less pixelation
 
 		// Create a temporary canvas for pixelation
 		const tempCanvas = document.createElement('canvas');
@@ -329,6 +410,9 @@ function toASCII4() {
 		}
 	}
 }
+
+//downloading the image and text
+
 // Download the modified image
 function downloadImage() {
 	const link = document.createElement('a');
