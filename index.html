@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>ASCII</title>
+		<link rel="stylesheet" href="index.css" />
+	</head>
+	<body>
+		<button id="toggleButton">Toggle Dark Mode</button>
+
+		<br />
+		<h2>Upload Image</h2>
+		<form id="imageUploadForm" enctype="multipart/form-data">
+			<input type="file" id="imageInput" accept="image/*" />
+			<br />
+			<button type="button" onclick="uploadImage()">Upload Image</button>
+		</form>
+		<br />
+		<div>
+			<h2>Modify Image</h2>
+			<canvas id="imageCanvas" width="250" height="250"></canvas>
+			<br />
+			<button onclick="applyGrayscale()">Grayscale</button>
+			<button onclick="applyBlur()">Blur</button><br />
+			<button onclick="applyPixelate()">Pixelate</button>
+			<div class="slider-container">
+				<span id="pixelationLevel">1</span><br />
+				<input
+					type="range"
+					min="1"
+					max="20"
+					value="1"
+					class="slider"
+					id="pixelateRange"
+				/>
+			</div>
+			<button onclick="resetImage()">Reset</button>
+			<button onclick="resize()">resize</button>
+			<button onclick="smallImage()">smallImage</button>
+			<br />
+			<input type="checkbox" id="invert" />invert <br />
+			<button onclick="toASCII1()">ASCII 1</button>
+			<button onclick="toASCII2()">ASCII 2</button>
+			<button onclick="toASCII3()">ASCII 3</button>
+			<button onclick="toASCII3()">ASCII 4</button>
+		</div>
+		<br />
+		<div>
+			<div id="textBox"></div>
+		</div>
+		<br />
+		<div>
+			<button onclick="downloadImage()">Download Image</button>
+			<button onclick="downloadASCII()">Download ASCII</button>
+		</div>
+		<script type="text/javascript" src="script.js"></script>
+	</body>
+</html>
