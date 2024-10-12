@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Webcam video ascii</title>
+
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				font-family: 'Courier New', Courier, monospace;
+				background-color: black;
+				color: white;
+			}
+			video {
+				display: block;
+				width: 480px;
+				height: 360px;
+				margin-bottom: 10px;
+				transform: scaleX(-1);
+			}
+			canvas {
+				display: none;
+			}
+
+			#textBox {
+				font-size: 8px;
+				line-height: 6px;
+				margin: 0;
+				padding: 0;
+				white-space: pre;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<video id="vid" autoplay></video>
+			<canvas id="canvas"></canvas>
+		</div>
+		<br />
+		<button id="but">Open WebCam</button>
+		<button><a href="./index.html">back</a></button>
+		<div id="textBox"></div>
+
+		<script>
+			const density2 = '@%#*+=-:.           ';
+			// const density2 = '$@B%8&WM#*/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
+			// const density2 ='$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
+			function normalize(x, min1, max1, min2, max2) {
+				return ((x - min1) / (max1 - min1)) * (max2 - min2) + min2;
+			}
+			document.addEventListener('DOMContentLoaded', () => {
+				const but = document.getElementById('but');
+				const video = document.getElementById('vid');
+				const canvas = document.getElementById('canvas');
+				const context = canvas.getContext('2d');
+				const mediaDevices = navigator.mediaDevices;
+
+				video.muted = true;
+
+				// Open webcam on button click
+				but.addEventListener('click', () => {
+					mediaDevices
+						.getUserMedia({
+							video: true,
+							audio: false, // Disable audio for simplicity
+						})
+						.then((stream) => {
+							video.srcObject = stream;
+							video.addEventListener('loadedmetadata', () => {
+								video.play();
+								ascii();
+							});
+						})
+						.catch((error) => {
+							console.error('Error accessing webcam:', error);
+						});
+				});
+				function ascii() {
+					// Set canvas size to match video resolution
+					canvas.width = window.innerWidth / 7;
+					canvas.height = window.innerHeight / 7;
+
+					// Draw the current video frame to the canvas
+					context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+					// Get image data from the canvas
+					const frameData = context.getImageData(
+						0,
+						0,
+						canvas.width,
+						canvas.height
+					);
+					let textBox = document.getElementById('textBox');
+					let imgData = context.getImageData(
+						0,
+						0,
+						canvas.width,
+						canvas.height
+					);
+					textBox.innerHTML = '';
+					for (let i = 0; i < canvas.height; i++) {
+						let row = '';
+						for (let j = canvas.width - 1; j >= 0; j--) {
+							const pixelIndex = (i * canvas.width + j) * 4;
+							const red = imgData.data[pixelIndex + 0];
+							const green = imgData.data[pixelIndex + 1];
+							const blue = imgData.data[pixelIndex + 2];
+							const alpha = imgData.data[pixelIndex + 3];
+
+							const avg = (red + green + blue) / 3;
+
+							let len = density2.length - 1;
+
+							let start = 0;
+							// if (isInverted.checked) {
+							// 	start = len;
+							// 	len = 0;
+							// }
+							const charIndex = Math.floor(
+								normalize(avg, 0, 255, len, start)
+							);
+							const c = density2.charAt(charIndex);
+							if (c === ' ') {
+								row += '&nbsp;';
+							} else {
+								row += c;
+							}
+						}
+						const rowElement = document.createElement('div');
+						rowElement.innerHTML = row;
+						textBox.appendChild(rowElement);
+					}
+					requestAnimationFrame(ascii);
+				}
+			});
+		</script>
+	</body>
+</html>
