@@ -14,13 +14,6 @@ toggleButton.addEventListener('click', () => {
 	document.body.classList.toggle('dark-mode');
 });
 
-var sizeDownLevel = document.getElementById('sizeDownLevel');
-var sizeDownslider = document.getElementById('sizeDownRange');
-
-sizeDownslider.oninput = function () {
-	sizeDownLevel.innerHTML = this.value;
-	applyPixelate();
-};
 /**
  * Normalize a value from one range to another range.
  *
@@ -79,6 +72,8 @@ function applyBlur() {
 	ctx.filter = 'blur(5px)';
 	ctx.drawImage(canvas, 0, 0);
 }
+
+//slider for pixelation controls
 
 var pixelationLevel = document.getElementById('pixelationLevel');
 var pixelationSlider = document.getElementById('pixelateRange');
@@ -228,7 +223,7 @@ function toASCII1() {
 			}
 		}
 		const rowElement = document.createElement('div');
-		rowElement.textContent = row;
+		rowElement.innerHTML = row;
 		textBox.appendChild(rowElement);
 	}
 }
@@ -275,16 +270,27 @@ function toASCII2() {
 			const charIndex = Math.floor(normalize(avg, 0, 255, start, len));
 			const c = density2.charAt(charIndex);
 			if (c == ' ') {
-				row += '&nbsp; ';
+				row += '&nbsp;';
 			} else {
 				row += c;
 			}
 		}
 		const rowElement = document.createElement('div');
-		rowElement.textContent = row;
+		rowElement.innerHTML = row;
 		textBox.appendChild(rowElement);
 	}
 }
+
+// size down slider controls
+var sizeDownLevel = document.getElementById('sizeDownLevel');
+var sizeDownslider = document.getElementById('sizeDownRange');
+
+// Update the sizeDownLevel element to show the current value of the sizeDownRange slider when the user is interacting with the slider.
+sizeDownslider.oninput = function () {
+	sizeDownLevel.innerHTML = this.value;
+};
+
+//sized down image conversions
 
 function toASCII3() {
 	let textBox = document.getElementById('textBox');
@@ -343,7 +349,7 @@ function toASCII3() {
 				}
 			}
 			const rowElement = document.createElement('div');
-			rowElement.textContent = row;
+			rowElement.innerHTML = row;
 			textBox.appendChild(rowElement);
 		}
 	}
@@ -405,7 +411,7 @@ function toASCII4() {
 				}
 			}
 			const rowElement = document.createElement('div');
-			rowElement.textContent = row;
+			rowElement.innerHTML = row;
 			textBox.appendChild(rowElement);
 		}
 	}
@@ -421,6 +427,14 @@ function downloadImage() {
 	link.click();
 }
 
+/**
+ * Downloads the current ASCII art representation in the text box
+ * as a .txt file.
+ *
+ * The downloaded file will have the name "ascii-art.txt".
+ *
+ * @function downloadASCII
+ */
 function downloadASCII() {
 	let textBox = document.getElementById('textBox');
 	let asciiContent = textBox.innerHTML
