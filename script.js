@@ -25,6 +25,7 @@ window.onload = function () {
 	const darkModePreference = localStorage.getItem('darkMode') === 'true';
 	if (darkModePreference) {
 		document.body.classList.add('dark-mode');
+		isInverted.checked = true;
 	} else {
 		document.body.classList.remove('dark-mode');
 	}
