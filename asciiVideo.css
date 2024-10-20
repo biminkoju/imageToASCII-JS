@@ -1,0 +1,44 @@
+:root {
+	--background-color: #ffffff;
+	--text-color: #000000;
+}
+
+.dark-mode {
+	--background-color: #000000;
+	--text-color: #ffffff;
+}
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-family: 'Courier New', Courier, monospace;
+}
+body {
+	background-color: var(--background-color);
+	color: var(--text-color);
+	transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+video {
+	display: block;
+	width: 480px;
+	height: 360px;
+	margin-bottom: 10px;
+	transform: scaleX(-1);
+}
+canvas {
+	display: none;
+}
+
+#textBox {
+	font-size: 10px;
+	line-height: 8px;
+	margin: 0;
+	padding: 0;
+	white-space: pre;
+}
+span {
+	margin: 0;
+	padding: 0;
+}

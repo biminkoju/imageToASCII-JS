@@ -2,16 +2,59 @@ const canvas = document.getElementById('imageCanvas');
 const ctx = canvas.getContext('2d');
 const img = new Image();
 let originalImage = null; // Store the original image
-const density1 =
-	'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
-const density2 = '@%#*+=-:. ';
 
 let isInverted = document.getElementById('invert');
+let iscolored = document.getElementById('colored');
+
+let textBox = document.getElementById('textBox');
 
 const toggleButton = document.getElementById('toggleButton');
 
+// Original density string
+const defaultDensity1 =
+	'$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'. ';
+const defaultDensity2 = '@%#*+=-:. '; // Original density string
+let density1 = defaultDensity1; // Initialize density with the default value
+let density2 = defaultDensity2; // Initialize density with the default value
+
+// Check localStorage for dark mode preference on page load
+window.onload = function () {
+	document.getElementById('densityString1').value = defaultDensity1;
+	document.getElementById('densityString2').value = defaultDensity2;
+
+	const darkModePreference = localStorage.getItem('darkMode') === 'true';
+	if (darkModePreference) {
+		document.body.classList.add('dark-mode');
+	} else {
+		document.body.classList.remove('dark-mode');
+	}
+};
+
+document.getElementById('resetDensityString').addEventListener('click', () => {
+	document.getElementById('densityString1').value = defaultDensity1;
+	document.getElementById('densityString2').value = defaultDensity2;
+});
+
+// for density 1
+document.getElementById('densityString1').addEventListener('input', (event) => {
+	density1 = event.target.value; // Update the global density variable
+	console.log('Updated Density String:', density1);
+});
+
+// for density 2
+document.getElementById('densityString2').addEventListener('input', (event) => {
+	density2 = event.target.value; // Update the global density variable
+	console.log('Updated Density String:', density2);
+});
+
+// Toggle dark mode and save preference
 toggleButton.addEventListener('click', () => {
 	document.body.classList.toggle('dark-mode');
+
+	// Save the preference in localStorage
+	const isDarkMode = document.body.classList.contains('dark-mode');
+	localStorage.setItem('darkMode', isDarkMode);
+	isInverted.checked = isDarkMode; // auto turn on inverted mode if dark mode is on
 });
 
 /**
@@ -192,10 +235,19 @@ function resetImage() {
  *
  * When the row is complete, it is added to the text box as a `div` element.
  */
+
 function toASCII1() {
-	let textBox = document.getElementById('textBox');
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-	textBox.innerHTML = '';
+
+	let allRows = '';
+	let len = density1.length - 1;
+
+	let start = 0;
+	if (isInverted.checked) {
+		start = len;
+		len = 0;
+	}
+
 	for (let i = 0; i < canvas.height; i++) {
 		let row = '';
 		for (let j = 0; j < canvas.width; j++) {
@@ -203,29 +255,24 @@ function toASCII1() {
 			const red = imgData.data[pixelIndex + 0];
 			const green = imgData.data[pixelIndex + 1];
 			const blue = imgData.data[pixelIndex + 2];
-			const alpha = imgData.data[pixelIndex + 3];
 
 			const avg = (red + green + blue) / 3;
 
-			let len = density1.length - 1;
-
-			let start = 0;
-			if (isInverted.checked) {
-				start = len;
-				len = 0;
-			}
 			const charIndex = Math.floor(normalize(avg, 0, 255, start, len));
 			const c = density1.charAt(charIndex);
 			if (c === ' ') {
 				row += '&nbsp;';
 			} else {
-				row += c;
+				if (iscolored.checked) {
+					row += `<span style="color: rgb(${red}, ${green}, ${blue})">${c}</span>`;
+				} else {
+					row += c;
+				}
 			}
 		}
-		const rowElement = document.createElement('div');
-		rowElement.innerHTML = row;
-		textBox.appendChild(rowElement);
+		allRows += `<div>${row}</div>`;
 	}
+	textBox.innerHTML = allRows;
 }
 /**
  * Takes the current image on the canvas and converts it to an ASCII art
@@ -248,7 +295,16 @@ function toASCII1() {
 function toASCII2() {
 	let textBox = document.getElementById('textBox');
 	let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-	textBox.innerHTML = '';
+
+	let allRows = '';
+
+	let len = density2.length - 1;
+	let start = 0;
+	if (isInverted.checked) {
+		start = len;
+		len = 0;
+	}
+
 	for (let i = 0; i < canvas.height; i++) {
 		let row = '';
 		for (let j = 0; j < canvas.width; j++) {
@@ -256,29 +312,24 @@ function toASCII2() {
 			const red = imgData.data[pixelIndex + 0];
 			const green = imgData.data[pixelIndex + 1];
 			const blue = imgData.data[pixelIndex + 2];
-			const alpha = imgData.data[pixelIndex + 3];
 
 			const avg = (red + green + blue) / 3;
 
-			let len = density2.length - 1;
-
-			let start = 0;
-			if (isInverted.checked) {
-				start = len;
-				len = 0;
-			}
 			const charIndex = Math.floor(normalize(avg, 0, 255, start, len));
 			const c = density2.charAt(charIndex);
-			if (c == ' ') {
+			if (c === ' ') {
 				row += '&nbsp;';
 			} else {
-				row += c;
+				if (iscolored.checked) {
+					row += `<span style="color: rgb(${red}, ${green}, ${blue})">${c}</span>`;
+				} else {
+					row += c;
+				}
 			}
 		}
-		const rowElement = document.createElement('div');
-		rowElement.innerHTML = row;
-		textBox.appendChild(rowElement);
+		allRows += `<div>${row}</div>`;
 	}
+	textBox.innerHTML = allRows;
 }
 
 // size down slider controls
@@ -320,6 +371,17 @@ function toASCII3() {
 			tempCanvas.width,
 			tempCanvas.height
 		);
+
+		let allRows = '';
+
+		let len = density1.length - 1;
+
+		let start = 0;
+		if (isInverted.checked) {
+			start = len;
+			len = 0;
+		}
+
 		for (let i = 0; i < tempCanvas.height; i++) {
 			let row = '';
 			for (let j = 0; j < tempCanvas.width; j++) {
@@ -331,27 +393,23 @@ function toASCII3() {
 
 				const avg = (red + green + blue) / 3;
 
-				let len = density1.length - 1;
-
-				let start = 0;
-				if (isInverted.checked) {
-					start = len;
-					len = 0;
-				}
 				const charIndex = Math.floor(
 					normalize(avg, 0, 255, start, len)
 				);
 				const c = density1.charAt(charIndex);
-				if (c == ' ') {
+				if (c === ' ') {
 					row += '&nbsp;';
 				} else {
-					row += c;
+					if (iscolored.checked) {
+						row += `<span style="color: rgb(${red}, ${green}, ${blue})">${c}</span>`;
+					} else {
+						row += c;
+					}
 				}
 			}
-			const rowElement = document.createElement('div');
-			rowElement.innerHTML = row;
-			textBox.appendChild(rowElement);
+			allRows += `<div>${row}</div>`;
 		}
+		textBox.innerHTML = allRows;
 	}
 }
 function toASCII4() {
@@ -382,6 +440,17 @@ function toASCII4() {
 			tempCanvas.width,
 			tempCanvas.height
 		);
+
+		let allRows = '';
+
+		let len = density2.length - 1;
+
+		let start = 0;
+		if (isInverted.checked) {
+			start = len;
+			len = 0;
+		}
+
 		for (let i = 0; i < tempCanvas.height; i++) {
 			let row = '';
 			for (let j = 0; j < tempCanvas.width; j++) {
@@ -393,27 +462,23 @@ function toASCII4() {
 
 				const avg = (red + green + blue) / 3;
 
-				let len = density2.length - 1;
-
-				let start = 0;
-				if (isInverted.checked) {
-					start = len;
-					len = 0;
-				}
 				const charIndex = Math.floor(
 					normalize(avg, 0, 255, start, len)
 				);
 				const c = density2.charAt(charIndex);
-				if (c == ' ') {
+				if (c === ' ') {
 					row += '&nbsp;';
 				} else {
-					row += c;
+					if (iscolored.checked) {
+						row += `<span style="color: rgb(${red}, ${green}, ${blue})">${c}</span>`;
+					} else {
+						row += c;
+					}
 				}
 			}
-			const rowElement = document.createElement('div');
-			rowElement.innerHTML = row;
-			textBox.appendChild(rowElement);
+			allRows += `<div>${row}</div>`;
 		}
+		textBox.innerHTML = allRows;
 	}
 }
 

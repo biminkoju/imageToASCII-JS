@@ -8,17 +8,25 @@
 	</head>
 	<body>
 		<h1>ASCII</h1>
+
 		<button id="toggleButton">Toggle Dark Mode</button>
+
 		<button><a href="./asciiVideo.html">ASCII Video</a></button>
+
 		<br />
 		<br />
+
 		<h3>Upload Image</h3>
+
+		<!-- Image upload form -->
 		<form id="imageUploadForm" enctype="multipart/form-data">
 			<input type="file" id="imageInput" accept="image/*" />
 			<br /><br />
 			<button type="button" onclick="uploadImage()">Upload Image</button>
 		</form>
 		<br />
+
+		<!-- Image canvas -->
 		<div>
 			<h3>Modify Image</h3>
 			<canvas id="imageCanvas" width="250" height="250"></canvas>
@@ -40,20 +48,50 @@
 				/>
 			</div>
 
-			<br />
-			<br />
 			<h3>Image resize</h3>
 			<button onclick="resize()">resize</button>
 			<button onclick="smallImage()">smallImage</button>
 			<button onclick="resetImage()">Reset</button>
 			<br /><br />
 			<h3>ASCII conversion</h3>
+
 			<input type="checkbox" id="invert" />invert <br />
 			(inverts the charactermap so lighter portion of image get's assigned
-			the darker character) <br /><br />
+			the darker character) <br />
+
+			<input type="checkbox" id="colored" />colored output
+			<br />
+			(warning: colored output can be very slow, cuz rendering hundreds
+			upon hundreds of span tags)
+			<br />
+			<div>
+				<label for="densityString1">Density1 String:</label>
+				<input type="text" id="densityString1" name="densityString1"
+				value="$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`\'.
+				" required /> for ASCII 1 and ASCII 3<br />
+			</div>
+			<div>
+				<label for="densityString2">Density2 String:</label>
+				<input
+					type="text"
+					id="densityString2"
+					name="densityString2"
+					value="@%#*+=-:. "
+					required
+				/>
+				for ASCII 2 and ASCII 4<br />
+			</div>
+
+			<button id="resetDensityString">reset density string</button>
+
+			<br />
+			<br />
+
 			<button onclick="toASCII1()">ASCII 1</button>
 			<button onclick="toASCII2()">ASCII 2</button>
+
 			<br /><br />
+
 			size down level: <span id="sizeDownLevel">1</span><br />
 			<input
 				type="range"
@@ -68,18 +106,25 @@
 			<button onclick="toASCII4()">ASCII 4</button>
 		</div>
 		<br />
-		<h3>converted ascii</h3>
+
+		<h3>Converted ASCII</h3>
+
 		<br />
 		<br />
+
 		<div>
 			<div id="textBox"></div>
 		</div>
+
 		<br /><br />
+
 		<h3>Download</h3>
+
 		<div>
 			<button onclick="downloadImage()">Download Image</button>
 			<button onclick="downloadASCII()">Download ASCII</button>
 		</div>
+
 		<script type="text/javascript" src="script.js"></script>
 	</body>
 </html>
